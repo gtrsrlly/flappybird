@@ -11,6 +11,9 @@ console.log('Succesfully initialized Google Analitics with Indentificator: '+GAI
 VK.init(function(){
 	console.log('Succesfully initialized VK JavaScript API');
 });
+VK.api('isAppUser',{},function(data){
+	if (data.response == 1){ console.log('Current user already installed this app!'); } 
+}); 
             var stage, w, h, loader, pipe1height, pipe2height, pipe3height, startX, startY, wiggleDelta;
             var background, bird, ground, pipe, bottomPipe, pipes, rotationDelta, counter, counterOutline;
             var started = false; 
