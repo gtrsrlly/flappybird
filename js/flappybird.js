@@ -28,11 +28,6 @@ console.log('Succesfully initialized Google Analitics with Indentificator: '+GAI
             document.onkeydown = handleKeyDown;
 
             function init() {
-                if (window.top != window) {
-                    document.getElementById("header").style.display = "none";
-                }
-
-
                 // createjs.MotionGuidePlugin.install();
 				console.log('New canvas stage created!');
                 stage = new createjs.Stage("testCanvas");
