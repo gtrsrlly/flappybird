@@ -67,7 +67,7 @@ function init() {
 		src: "img/bird.png",
 		id: "bird"
 	}, {
-		src: "img/background.png",
+		src: "img/background2.png",
 		id: "background"
 	}, {
 		src: "img/ground.png",
@@ -100,8 +100,12 @@ function init() {
 function handleComplete() {
 
 	console.log('Let\'s put some background...');
+	
+	var backgroundImg = loader.getResult("background");
 	background = new createjs.Shape();
-	background.graphics.beginBitmapFill(loader.getResult("background")).drawRect(0, 0, w, h);
+	background.graphics.beginBitmapFill(backgroundImg).drawRect(0, 0, w + backgroundImg.width, backgroundImg.height);
+	background.tileW = backgroundImg.width;
+	background.y = 0;
 
 	console.log('...put some grass...');
 	var groundImg = loader.getResult("ground");
@@ -146,28 +150,46 @@ function handleComplete() {
 		y: startY
 	}, 380, createjs.Ease.sineInOut);
 
-	stage.addChild(background);
-
 	pipes = new createjs.Container();
+	stage.addChild(background)
 	stage.addChild(pipes)
 
 	stage.addChild(bird, ground);
 	stage.addEventListener("stagemousedown", handleJumpStart);
 
 	console.log('Making counter...');
-	counter = new createjs.Text(0, "86px 'Flappy Bird'", "#ffffff");
-	counterOutline = new createjs.Text(0, "86px 'Flappy Bird'", "#000000");
-	counterOutline.outline = 5
-	counterOutline.textAlign = 'center'
-	counter.textAlign = 'center'
-	counterOutline.x = w / 2
-	counterOutline.y = 150
-	counter.x = w / 2
-	counter.y = 150
+	
+	counterText = new createjs.Text(0, "75px 'Flappy Bird'", "#ffffff");
+	counterTextOutline = new createjs.Text(0, "75px 'Flappy Bird'", "#000000");
+	counterTextOutline.outline = 2
+	counterTextOutline.textAlign = 'left'
+	counterText.textAlign = 'left'
+	counterTextOutline.x = 50
+	counterTextOutline.y = 50
+	counterText.x = 50
+	counterText.y = 50
+	counterText.alpha = 1
+	counterTextOutline.alpha = 1
+	stage.addChild(counterText, counterTextOutline);
+	
+	counterText.text = 'Score:';
+	counterTextOutline.text = 'Score:';
+	
+	counter = new createjs.Text(0, "75px 'Flappy Bird'", "#ffffff");
+	counterOutline = new createjs.Text(0, "75px 'Flappy Bird'", "#000000");
+	counterOutline.outline = 2
+	counterOutline.textAlign = 'left'
+	counter.textAlign = 'left'
+	counterOutline.x = 320
+	counterOutline.y = 50
+	counter.x = 320
+	counter.y = 50
 	counter.alpha = 1
 	counterOutline.alpha = 1
 	stage.addChild(counter, counterOutline);
+	
 	createjs.Ticker.timingMode = createjs.Ticker.RAF;
+	console.log('Start engine...');
 	createjs.Ticker.addEventListener("tick", tick);
 }
 
@@ -332,6 +354,7 @@ function tick(event) {
 
 	if (!dead) {
 		ground.x = (ground.x - deltaS * 300) % ground.tileW;
+		background.x = (background.x - deltaS * 100) % background.tileW;
 	}
 
 
@@ -339,17 +362,17 @@ function tick(event) {
 		if (pipeDelay == 0) {
 
 			pipe = new createjs.Bitmap(loader.getResult("pipe"));
-			pipe.x = w + 600
+			pipe.x = w
 			pipe.y = (ground.y - gap * 2) * Math.random() + gap * 1.5
 			pipes.addChild(pipe);
-			// createjs.Tween.get(pipe).to({x:0 - pipe.image.width}, 5100)
+			//createjs.Tween.get(pipe).to({x:0 - pipe.image.width}, 5100)
 
 			pipe2 = new createjs.Bitmap(loader.getResult("pipe"));
 			pipe2.scaleX = -1
 			pipe2.rotation = 180
 			pipe2.x = pipe.x //+ pipe.image.width
 			pipe2.y = pipe.y - gap
-			// createjs.Tween.get(pipe2).to({x:0 - pipe.image.width}, 5100)
+			//createjs.Tween.get(pipe2).to({x:0 - pipe.image.width}, 5100)
 
 			pipes.addChild(pipe2);
 
