@@ -16,11 +16,9 @@ VK.api('isAppUser',{},function(data){
 }); 
 VK.api('users.get',{},function(data){
 	if(data.response){
-		console.log(data.response);
-		console.log(data.response[0]);
-		var USERNAME = data.response['first_name'];
-		var USERSURNAME = data.response.last_name;
-		var USERID = data.response['uid'];
+		var USERNAME = data.response[0]['first_name'];
+		var USERSURNAME = data.response[0]['last_name'];
+		var USERID = data.response[0]['uid'];
 	} else {
 		var USERNAME = 'Anonimous';
 		var USERSURNAME = 'User';
