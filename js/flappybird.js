@@ -36,7 +36,7 @@ VK.api('users.get', {}, function (data) {
 	}
 	console.log('Welcome, ' + USERNAME + ' ' + USERSURNAME + '! Your ID: ' + USERID);
 	VK.api('secure.getUserLevel', {user_ids:USERID}, function (data) {
-		console.log(data.response);
+		console.log(data);
 		if (data.response) {
 			var USERLEVEL = data.response[0]['level'];
 		} else {
