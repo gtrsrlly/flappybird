@@ -1,0 +1,20 @@
+@font-face {
+	font-family: 'Flappy Bird';
+	src: url('../fonts/FB.eot');
+	src: url('../fonts/FB.eot?#iefix') format('embedded-opentype'),
+	url('../fonts/FB.woff') format('woff'),
+	url('../fonts/FB.ttf') format('truetype'),
+	url('../fonts/FB.svg#04b_19regular') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+body, html {
+	margin: 0px;
+	padding: 0px;
+	text-align: center;
+	height: 100%;
+}
+canvas {
+	max-height: 100%;
+	max-width: 100%;
+}
