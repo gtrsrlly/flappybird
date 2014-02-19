@@ -1,7 +1,37 @@
-<!DOCTYPE html>
 <html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+<head>
+
+<title>Flappy Bird</title>
+
+<!-- Meta -->
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Веб-версия скроллинговой мобильной игры с 2D графикой в ретро стиле." />
+<meta name="keywords" content="Flappy Bird, Flappy Bird Online, Play Flappy Bird, Game, Flash, HTML 5, web, play online, free, javascript, download, new" />
+
+<link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="apple-touch-icon" href="images/iphone.png">
+<link rel="apple-touch-icon" sizes="76x76" href="images/ipad.png">
+<link rel="apple-touch-icon" sizes="120x120" href="images/iphoneretina.png">
+<link rel="apple-touch-icon" sizes="152x152" href="images/ipadretina.png">
+
+<meta property="og:title" content="Play Flappy Bird in the browser!"/>
+<meta property="og:type" content="game"/>
+<meta property="og:url" content="http://www.b1rd.tk"/>
+<meta property="og:image" content="http://www.b1rd.tk/images/ogimage.png"/>
+<meta property="og:site_name" content="Flappy Bird"/>
+<meta property="fb:admins" content=""/>
+<meta property="og:description" content="Веб-версия скроллинговой мобильной игры с 2D графикой в ретро стиле. Цель игры состоит в том, что нужно управлять непрерывно летящей вправо птицей, попутно уворачиваясь от препятствий в виде труб. При нажатии игроком на экран птица совершает небольшой рывок вверх. При столкновении с препятствием происходит завершение игры."/>
+
+</head>
+<body onload="init();">
+	<canvas id="testCanvas" width="768" height="1024"></canvas>
+	<script src="js/createjs.min.js"></script>
+	<script src="js/ndgmr.Collision.js"></script>
+	<script src="js/flappybird.js"></script>
 </body>
 </html>
