@@ -34,13 +34,13 @@ VK.api('isAppUser', {}, function (data) {
 });
 VK.api('users.get', {}, function (data) {
 	if (data.response) {
-		localStorage['localStorage.getItem['username']'] = data.response[0]['first_name'];
-		localStorage['localStorage.getItem['usersurname']'] = data.response[0]['last_name'];
-		localStorage['localStorage.getItem['userid']'] = data.response[0]['uid'];
+		localStorage['username']'] = data.response[0]['first_name'];
+		localStorage['usersurname']'] = data.response[0]['last_name'];
+		localStorage['userid']'] = data.response[0]['uid'];
 	} else {
-		localStorage['localStorage.getItem['username']'] = 'Anonimous';
-		localStorage['localStorage.getItem['usersurname']'] = 'User';
-		localStorage['localStorage.getItem['userid']'] = '0';
+		localStorage['username']'] = 'Anonimous';
+		localStorage['usersurname']'] = 'User';
+		localStorage['userid']'] = '0';
 	}
 	console.log('Welcome, ' + localStorage.getItem['username'] + ' ' + localStorage.getItem['usersurname'] + '! Your ID: ' + localStorage.getItem['userid']);
 });
