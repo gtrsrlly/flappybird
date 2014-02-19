@@ -35,6 +35,14 @@ VK.api('users.get', {}, function (data) {
 	}
 	console.log('Welcome, ' + USERNAME + ' ' + USERSURNAME + '! Your ID: ' + USERID);
 });
+VK.api('secure.getUserLevel', {user_ids:USERID}, function (data) {
+	if (data.response) {
+		var USERLEVEL = data.response[0]['level'];
+	} else {
+		var USERLEVEL = 0;
+	}
+	console.log('User level: ' + USERLEVEL);
+});
 var stage, w, h, loader, pipe1height, pipe2height, pipe3height, startX, startY, wiggleDelta;
 var background, bird, ground, pipe, bottomPipe, pipes, rotationDelta, counter, counterOutline;
 var started = false;
