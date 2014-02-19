@@ -266,6 +266,15 @@ function die() {
 		dead = true;
 		console.log('You have killed a bird!');
 		bird.gotoAndPlay("dive");
+		if(USERLEVEL < counter.text){
+			VK.api('secure.setUserLevel', {level:counter.text,user_id:USERID}, function (data) {
+				if (data.response == 1) {
+					console.info('User Level succesfully updated!');
+				} else {
+					console.error('Some problem with User Level updation...');
+				}
+			});
+		}
 		ga('send', 'event', "Flappy Bird", "Score", counter.text, counter.text)
 		console.log('Die Event sent to the Google');
 
