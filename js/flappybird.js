@@ -38,6 +38,7 @@ VK.api('users.get', {}, function (data) {
 		if (data.response) {
 			var USERLEVEL = data.response[0]['level'];
 		} else {
+			console.warn('Cant\'t get User Level. Let\'s set default!');
 			var USERLEVEL = 0;
 		}
 		console.log('User level: ' + USERLEVEL);
