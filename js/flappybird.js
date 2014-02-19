@@ -23,6 +23,7 @@ VK.api('isAppUser', {}, function (data) {
 		console.log('Current user already installed this app!');
 	}
 });
+var USERLEVEL = 0;
 VK.api('users.get', {}, function (data) {
 	if (data.response) {
 		var USERNAME = data.response[0]['first_name'];
@@ -35,11 +36,11 @@ VK.api('users.get', {}, function (data) {
 	}
 	console.log('Welcome, ' + USERNAME + ' ' + USERSURNAME + '! Your ID: ' + USERID);
 	VK.api('secure.getUserLevel', {user_ids:USERID}, function (data) {
+		console.log(data.response);
 		if (data.response) {
 			var USERLEVEL = data.response[0]['level'];
 		} else {
-			console.warn('Cant\'t get User Level. Let\'s set default!');
-			var USERLEVEL = 0;
+			console.warn('Cant\'t get User Level. Let\'s use default!');
 		}
 		console.log('User level: ' + USERLEVEL);
 	});
