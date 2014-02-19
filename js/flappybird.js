@@ -18,7 +18,7 @@ VK.api('users.get',{},function(data){
 	if(data.response){
 		console.log(data.response);
 		console.log(data.response.first_name);
-		var USERNAME = data.response.first_name;
+		var USERNAME = data.response['first_name'];
 		var USERSURNAME = data.response.last_name;
 		var USERID = data.response.uid;
 	} else {
