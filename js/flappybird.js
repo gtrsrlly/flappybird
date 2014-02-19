@@ -12,7 +12,8 @@ VK.init(function(){
 	console.log('Succesfully initialized VK JavaScript API');
 });
 VK.api('isAppUser',{},function(data){
-	if (data.response == 1){ console.log('Current user already installed this app!'); } 
+	console.log('Response: '+data.response);
+	if(data.response == 1){ console.log('Current user already installed this app!'); } 
 }); 
             var stage, w, h, loader, pipe1height, pipe2height, pipe3height, startX, startY, wiggleDelta;
             var background, bird, ground, pipe, bottomPipe, pipes, rotationDelta, counter, counterOutline;
