@@ -8,7 +8,9 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 ga('create', GAI, GAD);
 ga('send', 'pageview');
 console.log('Succesfully initialized Google Analitics with Indentificator: '+GAI+' and Domain Name: '+GAD);
-
+VK.init(function(){
+	console.log('Succesfully initialized VK JavaScript API');
+});
             var stage, w, h, loader, pipe1height, pipe2height, pipe3height, startX, startY, wiggleDelta;
             var background, bird, ground, pipe, bottomPipe, pipes, rotationDelta, counter, counterOutline;
             var started = false; 
