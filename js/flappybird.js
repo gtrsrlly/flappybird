@@ -16,6 +16,7 @@ VK.api('isAppUser',{},function(data){
 }); 
 VK.api('users.get',{},function(data){
 	if(data.response){
+		console.log(data.response);
 		var USERNAME = data.first_name;
 		var USERSURNAME = data.response.last_name;
 		var USERID = data.response.uid;
