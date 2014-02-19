@@ -1,4 +1,13 @@
 console.log('Hello world');
+
+function supports_html5_storage() {
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+} catch (e) {
+    return false;
+  }
+}
+
 var GAI = 'UA-48203742-1';
 var GAD = 'b1rd.tk';
 (function (i, s, o, g, r, a, m) {
@@ -23,27 +32,17 @@ VK.api('isAppUser', {}, function (data) {
 		console.log('Current user already installed this app!');
 	}
 });
-var USERLEVEL = 0;
 VK.api('users.get', {}, function (data) {
 	if (data.response) {
-		var USERNAME = data.response[0]['first_name'];
-		var USERSURNAME = data.response[0]['last_name'];
-		var USERID = data.response[0]['uid'];
+		localStorage['localStorage.getItem['username']'] = data.response[0]['first_name'];
+		localStorage['localStorage.getItem['usersurname']'] = data.response[0]['last_name'];
+		localStorage['localStorage.getItem['userid']'] = data.response[0]['uid'];
 	} else {
-		var USERNAME = 'Anonimous';
-		var USERSURNAME = 'User';
-		var USERID = '0';
+		localStorage['localStorage.getItem['username']'] = 'Anonimous';
+		localStorage['localStorage.getItem['usersurname']'] = 'User';
+		localStorage['localStorage.getItem['userid']'] = '0';
 	}
-	console.log('Welcome, ' + USERNAME + ' ' + USERSURNAME + '! Your ID: ' + USERID);
-	VK.api('secure.getUserLevel', {user_ids:USERID}, function (data) {
-		console.log(data);
-		if (data.response) {
-			var USERLEVEL = data.response[0]['level'];
-		} else {
-			console.warn('Cant\'t get User Level. Let\'s use default!');
-		}
-		console.log('User level: ' + USERLEVEL);
-	});
+	console.log('Welcome, ' + localStorage.getItem['username'] + ' ' + localStorage.getItem['usersurname'] + '! Your ID: ' + localStorage.getItem['userid']);
 });
 var stage, w, h, loader, pipe1height, pipe2height, pipe3height, startX, startY, wiggleDelta;
 var background, bird, ground, pipe, bottomPipe, pipes, rotationDelta, counter, counterOutline;
@@ -267,15 +266,26 @@ function die() {
 		dead = true;
 		console.log('You have killed a bird!');
 		bird.gotoAndPlay("dive");
-		if(USERLEVEL < counter.text){
-			VK.api('secure.setUserLevel', {level:counter.text,user_id:USERID}, function (data) {
-				if (data.response == 1) {
-					console.info('User Level succesfully updated!');
+		
+		VK.api('secure.getUserLevel', {user_ids:localStorage.getItem['userid']}, function (data) {
+				console.log(data);
+				if (data.response) {
+					localStorage['userlevel'] = data.response[0]['level'];
 				} else {
-					console.error('Some problem with User Level updation...');
+					localStorage['userlevel'] = 0;
+					console.warn('Cant\'t get User Level. Let\'s use default!');
 				}
-			});
-		}
+				console.log('User level: ' + localStorage.getItem['userlevel']);
+			if(localStorage.getItem['userlevel'] < counter.text){
+				VK.api('secure.setUserLevel', {level:counter.text,user_id:localStorage.getItem['userid']}, function (data) {
+					if (data.response == 1) {
+						console.info('User Level succesfully updated!');
+					} else {
+						console.error('Some problem with User Level updation...');
+					}
+				});
+			}
+		});
 		ga('send', 'event', "Flappy Bird", "Score", counter.text, counter.text)
 		console.log('Die Event sent to the Google');
 
