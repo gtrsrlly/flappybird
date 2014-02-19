@@ -1,4 +1,4 @@
-console.log('Hello world!');
+console.log('Hello world');
 var GAI = 'UA-48203742-1';
 var GAD = 'b1rd.tk';
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -11,10 +11,20 @@ console.log('Succesfully initialized Google Analitics with Indentificator: '+GAI
 VK.init(function(){
 	console.log('Succesfully initialized VK JavaScript API');
 });
-console.log('First checking...');
 VK.api('isAppUser',{},function(data){
-	console.log('Response: '+data.response);
 	if(data.response == 1){ console.log('Current user already installed this app!'); } 
+}); 
+VK.api('users.get',{},function(data){
+	if(data.response){
+		var USERNAME = data.response.first_name;
+		var USERSURNAME = data.response.last_name;
+		var USERID = data.response.id;
+	} else {
+		var USERNAME = 'Anonimous';
+		var USERSURNAME = 'User';
+		var USERID = '0';
+	}
+	console.log('Welcome, '+USERNAME+' '+USERSURNAME+'! Your ID: '+USERID);
 }); 
             var stage, w, h, loader, pipe1height, pipe2height, pipe3height, startX, startY, wiggleDelta;
             var background, bird, ground, pipe, bottomPipe, pipes, rotationDelta, counter, counterOutline;
