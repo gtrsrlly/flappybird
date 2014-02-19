@@ -11,6 +11,7 @@ console.log('Succesfully initialized Google Analitics with Indentificator: '+GAI
 VK.init(function(){
 	console.log('Succesfully initialized VK JavaScript API');
 });
+console.log('First checking...');
 VK.api('isAppUser',{},function(data){
 	console.log('Response: '+data.response);
 	if(data.response == 1){ console.log('Current user already installed this app!'); } 
