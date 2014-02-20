@@ -34,15 +34,15 @@ VK.api('isAppUser', {}, function (data) {
 });
 VK.api('users.get', {}, function (data) {
 	if (data.response) {
-		localStorage['username'] = data.response[0]['first_name'];
-		localStorage['usersurname'] = data.response[0]['last_name'];
-		localStorage['userid'] = data.response[0]['uid'];
+		window.USERNAME = data.response[0]['first_name'];
+		window.USERSURNAME = data.response[0]['last_name'];
+		window.USERID = data.response[0]['uid'];
 	} else {
-		localStorage['username'] = 'Anonimous';
-		localStorage['usersurname'] = 'User';
-		localStorage['userid'] = '0';
+		window.USERNAME = 'Anonimous';
+		window.USERSURNAME = 'User';
+		window.USERID = '0';
 	}
-	console.log('Welcome, ' + localStorage.getItem['username'] + ' ' + localStorage.getItem['usersurname'] + '! Your ID: ' + localStorage.getItem['userid']);
+	console.log('Welcome, ' + window.USERNAME + ' ' + window.USERSURNAME + '! Your ID: ' + window.USERID);
 });
 var stage, w, h, loader, pipe1height, pipe2height, pipe3height, startX, startY, wiggleDelta;
 var background, bird, ground, pipe, bottomPipe, pipes, rotationDelta, counter, counterOutline;
@@ -267,17 +267,17 @@ function die() {
 		console.log('You have killed a bird!');
 		bird.gotoAndPlay("dive");
 		
-		VK.api('secure.getUserLevel', {user_ids:localStorage.getItem['userid']}, function (data) {
+		VK.api('secure.getUserLevel', {user_ids:window.USERID}, function (data) {
 				console.log(data);
 				if (data.response) {
-					localStorage['userlevel'] = data.response[0]['level'];
+					window.USERLEVEL = data.response[0]['level'];
 				} else {
-					localStorage['userlevel'] = 0;
+					window.USERLEVEL = 0;
 					console.warn('Cant\'t get User Level. Let\'s use default!');
 				}
-				console.log('User level: ' + localStorage.getItem['userlevel']);
-			if(localStorage.getItem['userlevel'] < counter.text){
-				VK.api('secure.setUserLevel', {level:counter.text,user_id:localStorage.getItem['userid']}, function (data) {
+				console.log('User level: ' + window.USERLEVEL);
+			if(window.USERLEVEL < counter.text){
+				VK.api('secure.setUserLevel', {level:counter.text,user_id:window.USERID}, function (data) {
 					if (data.response == 1) {
 						console.info('User Level succesfully updated!');
 					} else {
