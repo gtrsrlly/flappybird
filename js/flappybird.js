@@ -9,17 +9,23 @@ function supports_html5_storage() {
 }
 
 function getUrlVars() {
-  vars = [];
-  var hash;
-  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-  for(var i = 0; i && hashes.length; i++) {
-    hash = hashes[i].split('=');
-    vars.push(hash[0]);
-    vars[hash[0]] = hash[1];
-  }
+var tmp = new Array();		// два вспомагательных
+var tmp2 = new Array();		// массива
+var param = new Array();
+
+var get = location.search;	// строка GET запроса
+if(get != '') {
+	tmp = (get.substr(1)).split('&');	// разделяем переменные
+	for(var i=0; i < tmp.length; i++) {
+		tmp2 = tmp[i].split('=');		// массив param будет содержать
+		param[tmp2[0]] = tmp2[1];		// пары ключ(имя переменной)->значение
+	}
 	console.log('Extracted variables from $_GET: ');
-	console.log(vars);
-  return vars;
+	console.log(param);
+} else {
+	console.log('There is no any $_GET!');
+}
+  return param;
 }
 
 var GAI = 'UA-48203742-1';
