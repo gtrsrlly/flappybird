@@ -81,9 +81,11 @@ if(window.SAVEMODE == 'local' && (localStorage.getItem('userlevel') > 0)){
 }
 
 if(window.SAVEMODE == 'vk'){
-	VK.init(function () {
+	VK.init(function() { 
 		console.log('Succesfully initialized VK JavaScript API');
-	});
+	}, function() { 
+		console.error('VK JavaScript API initialization failed!');
+	}, '5.10'); 
 	VK.api('isAppUser', {}, function (data) {
 		if (data.response == 1) {
 			console.log('Current user already installed this app!');
