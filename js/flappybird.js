@@ -43,6 +43,16 @@ VK.api('users.get', {}, function (data) {
 		window.USERID = '0';
 	}
 	console.log('Welcome, ' + window.USERNAME + ' ' + window.USERSURNAME + '! Your ID: ' + window.USERID);
+	VK.api('secure.getUserLevel', {user_ids:window.USERID}, function (data){
+		if(data.response){
+			window.USERLEVEL = data.response[0]['level'];
+		} else {
+			window.USERLEVEL = 0;
+			console.log(data);
+			console.warn('Cant\'t get User Level. Let\'s use default!');
+		}
+		console.log('User level: ' + window.USERLEVEL);
+	});
 });
 var stage, w, h, loader, pipe1height, pipe2height, pipe3height, startX, startY, wiggleDelta;
 var background, bird, ground, pipe, bottomPipe, pipes, rotationDelta, counter, counterOutline;
@@ -109,7 +119,7 @@ function init() {
 function handleComplete() {
 
 	console.log('Let\'s put some background...');
-	
+
 	var backgroundImg = loader.getResult("background");
 	background = new createjs.Shape();
 	background.graphics.beginBitmapFill(backgroundImg).drawRect(0, 0, w + backgroundImg.width, backgroundImg.height);
@@ -167,7 +177,7 @@ function handleComplete() {
 	stage.addEventListener("stagemousedown", handleJumpStart);
 
 	console.log('Making counter...');
-	
+
 	counterText = new createjs.Text(0, "75px 'Flappy Bird'", "#ffffff");
 	counterTextOutline = new createjs.Text(0, "75px 'Flappy Bird'", "#000000");
 	counterTextOutline.outline = 2
@@ -180,10 +190,10 @@ function handleComplete() {
 	counterText.alpha = 1
 	counterTextOutline.alpha = 1
 	stage.addChild(counterText, counterTextOutline);
-	
+
 	counterText.text = 'Score:';
 	counterTextOutline.text = 'Score:';
-	
+
 	counter = new createjs.Text(0, "75px 'Flappy Bird'", "#ffffff");
 	counterOutline = new createjs.Text(0, "75px 'Flappy Bird'", "#000000");
 	counterOutline.outline = 2
@@ -196,7 +206,7 @@ function handleComplete() {
 	counter.alpha = 1
 	counterOutline.alpha = 1
 	stage.addChild(counter, counterOutline);
-	
+
 	createjs.Ticker.timingMode = createjs.Ticker.RAF;
 	console.log('Start engine...');
 	createjs.Ticker.addEventListener("tick", tick);
@@ -266,26 +276,7 @@ function die() {
 		dead = true;
 		console.log('You have killed a bird!');
 		bird.gotoAndPlay("dive");
-		
-		VK.api('secure.getUserLevel', {user_ids:window.USERID}, function (data) {
-				console.log(data);
-				if (data.response) {
-					window.USERLEVEL = data.response[0]['level'];
-				} else {
-					window.USERLEVEL = 0;
-					console.warn('Cant\'t get User Level. Let\'s use default!');
-				}
-				console.log('User level: ' + window.USERLEVEL);
-			if(window.USERLEVEL < counter.text){
-				VK.api('secure.setUserLevel', {level:counter.text,user_id:window.USERID}, function (data) {
-					if (data.response == 1) {
-						console.info('User Level succesfully updated!');
-					} else {
-						console.error('Some problem with User Level updation...');
-					}
-				});
-			}
-		});
+
 		ga('send', 'event', "Flappy Bird", "Score", counter.text, counter.text)
 		console.log('Die Event sent to the Google');
 
