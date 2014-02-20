@@ -8,6 +8,18 @@ function supports_html5_storage() {
   }
 }
 
+function getUrlVars() {
+  vars = [];
+  var hash;
+  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+  for(var i = 0; i && hashes.length; i++) {
+    hash = hashes[i].split('=');
+    vars.push(hash[0]);
+    vars[hash[0]] = hash[1];
+  }
+  return vars;
+}
+
 var GAI = 'UA-48203742-1';
 var GAD = 'b1rd.tk';
 (function (i, s, o, g, r, a, m) {
@@ -24,38 +36,15 @@ var GAD = 'b1rd.tk';
 ga('create', GAI, GAD);
 ga('send', 'pageview');
 console.log('Succesfully initialized Google Analitics with Indentificator: ' + GAI + ' and Domain Name: ' + GAD);
-VK.init(function () {
-	console.log('Succesfully initialized VK JavaScript API');
-});
-VK.api('isAppUser', {}, function (data) {
-	if (data.response == 1) {
-		console.log('Current user already installed this app!');
-	}
-});
-VK.api('users.get', {}, function (data) {
-	if (data.response) {
-		window.USERNAME = data.response[0]['first_name'];
-		window.USERSURNAME = data.response[0]['last_name'];
-		window.USERID = data.response[0]['uid'];
-	} else {
-		window.USERNAME = 'Anonimous';
-		window.USERSURNAME = 'User';
-		window.USERID = '0';
-	}
-	console.log('Welcome, ' + window.USERNAME + ' ' + window.USERSURNAME + '! Your ID: ' + window.USERID);
-	VK.api('secure.getUserLevel', {user_ids:window.USERID}, function (data){
-		if(data.response){
-			window.USERLEVEL = data.response[0]['level'];
-		} else {
-			window.USERLEVEL = 0;
-			console.log(data);
-			console.warn('Cant\'t get User Level. Let\'s use default!');
-		}
-		console.log('User level: ' + window.USERLEVEL);
-	});
-});
-var stage, w, h, loader, pipe1height, pipe2height, pipe3height, startX, startY, wiggleDelta;
-var background, bird, ground, pipe, bottomPipe, pipes, rotationDelta, counter, counterOutline;
+
+window.SAVEMODE = 'none';
+window.USERLEVEL = 0;
+window.USERNAME = 'Anonimous';
+window.USERSURNAME = 'User';
+window.USERID = 0;
+		
+var stage, w, h, loader, obstacle1height, obstacle2height, obstacle3height, startX, startY, wiggleDelta;
+var background, runscreen, bird, ground, obstacle, bottomObstacle, obstacles, rotationDelta, counter, counterOutline;
 var started = false;
 var startJump = false;
 var jumpAmount = 120;
@@ -63,20 +52,67 @@ var jumpTime = 266;
 var dead = false;
 var KEYCODE_SPACE = 32;
 var gap = 250;
-var masterPipeDelay = 78;
-var pipeDelay = masterPipeDelay;
+var masterObstacleDelay = 78;
+var obstacleDelay = masterObstacleDelay;
 var counterShow = false;
 var GODMODE = 'OFF';
 document.onkeydown = handleKeyDown;
 
-function init() {
-	// createjs.MotionGuidePlugin.install();
-	console.log('New canvas stage created!');
+if(supports_html5_storage){
+	window.SAVEMODE = 'local';
+	console.info('SaveMode switched to Local');
+}
+
+var $_GET = getUrlVars();
+if($_GET['api_url'] == 'http://api.vk.com/api.php'){
+	window.SAVEMODE = 'vk';
+	console.info('SaveMode switched to VK');
+}
+if(window.SAVEMODE == 'local' && (localStorage.getItem('userlevel') > 0)){
+	window.USERLEVEL = localStorage.getItem('userlevel');
+}
+
+if(window.SAVEMODE == 'vk'){
+	VK.init(function () {
+		console.log('Succesfully initialized VK JavaScript API');
+	});
+	VK.api('isAppUser', {}, function (data) {
+		if (data.response == 1) {
+			console.log('Current user already installed this app!');
+		}
+	});
+	VK.api('users.get', {}, function (data) {
+		if (data.response) {
+			window.USERNAME = data.response[0]['first_name'];
+			window.USERSURNAME = data.response[0]['last_name'];
+			window.USERID = data.response[0]['uid'];
+		} else {
+			console.warn('Cant\'t get User Information. Let\'s use default!');
+		}
+		console.log('Welcome, ' + window.USERNAME + ' ' + window.USERSURNAME + '! Your ID: ' + window.USERID);
+		VK.api('secure.getUserLevel', {user_ids:window.USERID}, function (data){
+			if(data.response){
+				window.USERLEVEL = data.response[0]['level'];
+			} else {
+				console.log(data);
+				console.warn('Cant\'t get User Level. Let\'s use default!');
+			}
+			console.log('User level: ' + window.USERLEVEL);
+			init();
+		});
+	});
+} else {
+	init();
+}
+
+function init(){
+	console.log('Initializing game...');
+	createjs.MotionGuidePlugin.install();
 	stage = new createjs.Stage("testCanvas");
 	console.log('Touch enabled!');
 	createjs.Touch.enable(stage);
-	// stage.canvas.width = document.body.clientWidth; //document.width is obsolete
-	// stage.canvas.height = document.body.clientHeight; //document.height is obsolete
+	stage.canvas.width = document.body.clientWidth;
+	stage.canvas.height = document.body.clientHeight;
 
 	w = stage.canvas.width;
 	h = stage.canvas.height;
@@ -89,11 +125,14 @@ function init() {
 		src: "img/background2.png",
 		id: "background"
 	}, {
+		src: "img/runscreen.png",
+		id: "runscreen"
+	}, {
 		src: "img/ground.png",
 		id: "ground"
 	}, {
-		src: "img/pipe.png",
-		id: "pipe"
+		src: "img/obstacle.png",
+		id: "obstacle"
 	}, {
 		src: "img/restart.png",
 		id: "start"
@@ -119,12 +158,19 @@ function init() {
 function handleComplete() {
 
 	console.log('Let\'s put some background...');
-
+	
 	var backgroundImg = loader.getResult("background");
 	background = new createjs.Shape();
 	background.graphics.beginBitmapFill(backgroundImg).drawRect(0, 0, w + backgroundImg.width, backgroundImg.height);
 	background.tileW = backgroundImg.width;
 	background.y = 0;
+
+	var runscreenImg = loader.getResult("runscreen");
+	runscreen = new createjs.Shape();
+	runscreen.graphics.beginBitmapFill(runscreenImg).drawRect(0, 0, runscreenImg.width, runscreenImg.height);
+	runscreen.tileW = 100;
+	runscreen.y = 300;
+	runscreen.x = w / 2 - 50;
 
 	console.log('...put some grass...');
 	var groundImg = loader.getResult("ground");
@@ -133,8 +179,7 @@ function handleComplete() {
 	ground.tileW = groundImg.width;
 	ground.y = h - groundImg.height;
 
-
-	console.log('...load a bit of beatiful sprites...');
+	console.log('...defining animations...');
 	var data = new createjs.SpriteSheet({
 		"images": [loader.getResult("bird")],
 		//set center and size of frames, center is important for later bird roation
@@ -154,8 +199,8 @@ function handleComplete() {
 	console.log('...and release the bird in the sky');
 	bird = new createjs.Sprite(data, "fly");
 
-	startX = (w / 2) - (92 / 2)
-	startY = 512
+	startX = (w / 2) - (92 / 2) - 100
+	startY = (h / 2) - (92 / 2)
 	wiggleDelta = 18
 
 	console.log('Bird postion Y: ' + startY + ' and X: ' + startX);
@@ -169,15 +214,32 @@ function handleComplete() {
 		y: startY
 	}, 380, createjs.Ease.sineInOut);
 
-	pipes = new createjs.Container();
+	obstacles = new createjs.Container();
 	stage.addChild(background)
-	stage.addChild(pipes)
+	stage.addChild(runscreen)
+	stage.addChild(obstacles)
 
 	stage.addChild(bird, ground);
 	stage.addEventListener("stagemousedown", handleJumpStart);
 
-	console.log('Making counter...');
+	console.log('Making counters and text fields...');
 
+	centerText = new createjs.Text(0, "100px 'Flappy Bird'", "#ffffff");
+	centerTextOutline = new createjs.Text(0, "100px 'Flappy Bird'", "#000000");
+	centerTextOutline.outline = 2
+	centerTextOutline.textAlign = 'center'
+	centerText.textAlign = 'center'
+	centerTextOutline.x = w / 2
+	centerTextOutline.y = 150
+	centerText.x = w / 2
+	centerText.y = 150
+	centerText.alpha = 1
+	centerTextOutline.alpha = 1
+	stage.addChild(centerText, centerTextOutline);
+
+	centerText.text = 'Flappy Bird';
+	centerTextOutline.text = 'Flappy Bird';
+	
 	counterText = new createjs.Text(0, "75px 'Flappy Bird'", "#ffffff");
 	counterTextOutline = new createjs.Text(0, "75px 'Flappy Bird'", "#000000");
 	counterTextOutline.outline = 2
@@ -187,8 +249,8 @@ function handleComplete() {
 	counterTextOutline.y = 50
 	counterText.x = 50
 	counterText.y = 50
-	counterText.alpha = 1
-	counterTextOutline.alpha = 1
+	counterText.alpha = 0
+	counterTextOutline.alpha = 0
 	stage.addChild(counterText, counterTextOutline);
 
 	counterText.text = 'Score:';
@@ -203,12 +265,42 @@ function handleComplete() {
 	counterOutline.y = 50
 	counter.x = 320
 	counter.y = 50
-	counter.alpha = 1
-	counterOutline.alpha = 1
+	counter.alpha = 0
+	counterOutline.alpha = 0
 	stage.addChild(counter, counterOutline);
+	
+	BestScoreCounterText = new createjs.Text(0, "50px 'Flappy Bird'", "#ffffff");
+	BestScoreCounterTextOutline = new createjs.Text(0, "50px 'Flappy Bird'", "#000000");
+	BestScoreCounterTextOutline.outline = 2
+	BestScoreCounterTextOutline.textAlign = 'left'
+	BestScoreCounterText.textAlign = 'left'
+	BestScoreCounterTextOutline.x = 50
+	BestScoreCounterTextOutline.y = 130
+	BestScoreCounterText.x = 50
+	BestScoreCounterText.y = 130
+	BestScoreCounterText.alpha = 0
+	BestScoreCounterTextOutline.alpha = 0
+	stage.addChild(BestScoreCounterText, BestScoreCounterTextOutline);
+	BestScoreCounterText.text = 'Best:'
+	BestScoreCounterTextOutline.text = 'Best:'
+	
+	BestScoreCounter = new createjs.Text(0, "50px 'Flappy Bird'", "#ffffff");
+	BestScoreCounterOutline = new createjs.Text(0, "50px 'Flappy Bird'", "#000000");
+	BestScoreCounterOutline.outline = 2
+	BestScoreCounterOutline.textAlign = 'left'
+	BestScoreCounter.textAlign = 'left'
+	BestScoreCounterOutline.x = 200
+	BestScoreCounterOutline.y = 130
+	BestScoreCounter.x = 200
+	BestScoreCounter.y = 130
+	BestScoreCounter.alpha = 0
+	BestScoreCounterOutline.alpha = 0
+	stage.addChild(BestScoreCounter, BestScoreCounterOutline);
+	BestScoreCounter.text = USERLEVEL
+	BestScoreCounterOutline.text = USERLEVEL
 
+	console.log('Running engine...');
 	createjs.Ticker.timingMode = createjs.Ticker.RAF;
-	console.log('Start engine...');
 	createjs.Ticker.addEventListener("tick", tick);
 }
 
@@ -229,8 +321,18 @@ function handleJumpStart() {
 		bird.gotoAndPlay("jump");
 		startJump = true
 		if (!started) {
+			console.info('Game started!');
 			started = true
 			counterShow = true
+			createjs.Tween.get(runscreen).to({
+				alpha: 0
+			}, 110)
+			createjs.Tween.get(centerText).to({
+				alpha: 0
+			}, 110)
+			createjs.Tween.get(centerTextOutline).to({
+				alpha: 0
+			}, 110)
 		}
 	} else {
 		console.log('Some click...');
@@ -243,18 +345,34 @@ function diveBird() {
 }
 
 function restart() {
+		createjs.Tween.get(stage).to({
+			alpha: 0
+		}, 100).to({
+			alpha: 1
+		}, 100)
 	console.log('Alright, restart the game!');
 	//hide anything on stage and show the score
-	pipes.removeAllChildren();
+	obstacles.removeAllChildren();
 	createjs.Tween.get(start).to({
 		y: start.y + 10
 	}, 50).call(removeStart)
 	counter.text = 0
 	counterOutline.text = 0
+	BestScoreCounter.text = window.USERLEVEL;
+	BestScoreCounterOutline.text = window.USERLEVEL;
+	BestScoreCounter.alpha = 0
+	BestScoreCounterOutline.alpha = 0
+	counterTextOutline.alpha = 0
+	counterText.alpha = 0
 	counterOutline.alpha = 0
 	counter.alpha = 0
+	centerText.alpha = 1;
+	centerTextOutline.alpha = 1;
 	counterShow = false
-	pipeDelay = masterPipeDelay
+	runscreen.alpha = 1;
+	centerText.text = 'Get Ready!';
+	centerTextOutline.text = 'Get Ready!';
+	obstacleDelay = masterObstacleDelay
 	dead = false
 	started = false
 	startJump = false
@@ -276,7 +394,19 @@ function die() {
 		dead = true;
 		console.log('You have killed a bird!');
 		bird.gotoAndPlay("dive");
-
+		
+		if((counter.text == BestScoreCounter.text)||(counter.text > BestScoreCounter.text)){
+			console.log('You have a new Hightscore!');
+			if(SAVEMODE == 'local'){
+				console.info('New Hightscore saved to the Local Storage!');
+				localStorage.setItem('userlevel',counter.text);
+			}
+			if(SAVEMODE == 'vk'){
+				console.info('New Hightscore saved to VK!');
+				
+			}
+		}
+		
 		ga('send', 'event', "Flappy Bird", "Score", counter.text, counter.text)
 		console.log('Die Event sent to the Google');
 
@@ -284,35 +414,64 @@ function die() {
 		createjs.Tween.get(bird).wait(0).to({
 			y: bird.y + 200,
 			rotation: 90
-		}, (380) / 1.5, createjs.Ease.linear) //rotate back
-		.call(diveBird) // change bird to diving position
+		}, (380) / 1.5, createjs.Ease.linear)
+		.call(diveBird)
 		.to({
 			y: ground.y - 30
-		}, (h - (bird.y + 200)) / 1.5, createjs.Ease.linear); //drop to the bedrock
-		createjs.Tween.get(stage).to({
-			alpha: 0
-		}, 100).to({
-			alpha: 1
-		}, 100)
+		}, (h - (bird.y + 200)) / 1.5, createjs.Ease.linear);
+		console.log('Bird dropped to the floor');
 		start = new createjs.Bitmap(loader.getResult("start"));
 		start.alpha = 0
 		start.x = w / 2 - start.image.width / 2
-		start.y = h / 2 - start.image.height / 2 - 150
+		start.y = h / 2 - start.image.height / 2 - 50
 		share = new createjs.Bitmap(loader.getResult("share"));
 		share.alpha = 0
 		share.x = w / 2 - share.image.width / 2
-		share.y = h / 2 - share.image.height / 2 - 50
-
+		share.y = h / 2 - share.image.height / 2 + 50
 		stage.addChild(start)
 		stage.addChild(share)
+		console.log('Created new buttons');
+
+		centerText.text = 'The End!';
+		centerTextOutline.text = 'The End!';
+		console.log('Center Text changed');
+		createjs.Tween.get(centerText).to({
+			alpha: 1
+		}, 100)
+		createjs.Tween.get(centerTextOutline).to({
+			alpha: 1
+		}, 100)
+		createjs.Tween.get(counter).to({
+			alpha: 0
+		}, 70)
+		createjs.Tween.get(BestScoreCounter).to({
+			alpha: 0
+		}, 70)
+		createjs.Tween.get(BestScoreCounterOutline).to({
+			alpha: 0
+		}, 70)
+		createjs.Tween.get(BestScoreCounterText).to({
+			alpha: 0
+		}, 70)
+		createjs.Tween.get(BestScoreCounterTextOutline).to({
+			alpha: 0
+		}, 70)
+		createjs.Tween.get(counterOutline).to({
+			alpha: 0
+		}, 70)
+		createjs.Tween.get(counterText).to({
+			alpha: 0
+		}, 70)
+		createjs.Tween.get(counterTextOutline).to({
+			alpha: 0
+		}, 70)
 		createjs.Tween.get(start).to({
-			alpha: 1,
-			y: start.y + 50
-		}, 400, createjs.Ease.sineIn).call(addClickToStart)
+			alpha: 1
+		}, 200).call(addClickToStart)
 		createjs.Tween.get(share).to({
-			alpha: 1,
-			y: share.y + 50
-		}, 400, createjs.Ease.sineIn).call(addClickToStart)
+			alpha: 1
+		}, 200).call(addClickToStart)
+		console.log('Text & buttons animated');
 	}
 }
 
@@ -349,7 +508,7 @@ function goShare() {
 function tick(event) {
 	var deltaS = event.delta / 1000;
 
-	var l = pipes.getNumChildren();
+	var l = obstacles.getNumChildren();
 
 	if (bird.y > (ground.y - 40)) {
 		if (!dead) {
@@ -375,57 +534,69 @@ function tick(event) {
 	if (!dead) {
 		ground.x = (ground.x - deltaS * 300) % ground.tileW;
 		background.x = (background.x - deltaS * 100) % background.tileW;
+	} else {
 	}
-
-
+	
 	if (started && !dead) {
-		if (pipeDelay == 0) {
+		
+		if (obstacleDelay == 0) {
+			obstacle = new createjs.Bitmap(loader.getResult("obstacle"));
+			obstacle.x = w
+			obstacle.y = (ground.y - gap * 2) * Math.random() + gap * 1.5
+			obstacles.addChild(obstacle);
+			//createjs.Tween.get(obstacle).to({x:0 - obstacle.image.width}, 5100)
 
-			pipe = new createjs.Bitmap(loader.getResult("pipe"));
-			pipe.x = w
-			pipe.y = (ground.y - gap * 2) * Math.random() + gap * 1.5
-			pipes.addChild(pipe);
-			//createjs.Tween.get(pipe).to({x:0 - pipe.image.width}, 5100)
+			obstacle2 = new createjs.Bitmap(loader.getResult("obstacle"));
+			obstacle2.scaleX = -1
+			obstacle2.rotation = 180
+			obstacle2.x = obstacle.x //+ obstacle.image.width
+			obstacle2.y = obstacle.y - gap
+			//createjs.Tween.get(obstacle2).to({x:0 - obstacle.image.width}, 5100)
 
-			pipe2 = new createjs.Bitmap(loader.getResult("pipe"));
-			pipe2.scaleX = -1
-			pipe2.rotation = 180
-			pipe2.x = pipe.x //+ pipe.image.width
-			pipe2.y = pipe.y - gap
-			//createjs.Tween.get(pipe2).to({x:0 - pipe.image.width}, 5100)
-
-			pipes.addChild(pipe2);
-
-			pipeDelay = masterPipeDelay
+			obstacles.addChild(obstacle2);
+			console.log('New obstacle created!...');
+			obstacleDelay = masterObstacleDelay
 
 		} else {
-			pipeDelay = pipeDelay - 1
+			obstacleDelay = obstacleDelay - 1
 		}
 		for (var i = 0; i < l; i++) {
-			pipe = pipes.getChildAt(i);
-			if (pipe) {
-				if (true) { // tried replacing true with this, but it's off: pipe.x < bird.x + 92 && pipe.x > bird.x 
-					var collision = ndgmr.checkRectCollision(pipe, bird, 1, true)
+			obstacle = obstacles.getChildAt(i);
+			if (obstacle) {
+				var fu = false;
+				if (true) {
+					var collision = ndgmr.checkRectCollision(obstacle, bird, 1, true)
 					if (collision) {
 						if (collision.width > 8 && collision.height > 8) {
 							die()
 						}
 					}
 				}
-				pipe.x = (pipe.x - deltaS * 300);
-				if (pipe.x <= 338 && pipe.rotation == 0 && pipe.name != "counted") {
-					pipe.name = "counted";
-					counter.text = counter.text + 1
-					counterOutline.text = counterOutline.text + 1
+				obstacle.x = (obstacle.x - deltaS * 300);
+				if (obstacle.x <= 338 && obstacle.rotation == 0 && obstacle.name != "counted") {
+					obstacle.name = "counted";
+						counter.text = counter.text + 1
+						counterOutline.text = counterOutline.text + 1
+						if(BestScoreCounter.text < counter.text){
+							BestScoreCounter.text = counter.text
+							BestScoreCounterOutline.text = counterOutline.text
+							window.USERLEVEL  = counter.text
+						}
 				}
-				if (pipe.x + pipe.image.width <= -pipe.w) {
-					pipes.removeChild(pipe)
+				if (obstacle.x + obstacle.image.width <= -obstacle.w) {
+					obstacles.removeChild(obstacle)
 				}
 			}
 		}
 		if (counterShow) {
 			counter.alpha = 1
 			counterOutline.alpha = 1
+			counterText.alpha = 1
+			counterTextOutline.alpha = 1
+			BestScoreCounter.alpha = 1
+			BestScoreCounterOutline.alpha = 1
+			BestScoreCounterText.alpha = 1
+			BestScoreCounterTextOutline.alpha = 1
 			counterShow = false
 		}
 
@@ -434,6 +605,7 @@ function tick(event) {
 
 
 	if (startJump == true) {
+		console.log('Jumping...');
 		startJump = false
 		bird.framerate = 60;
 		bird.gotoAndPlay("fly");
@@ -468,7 +640,5 @@ function tick(event) {
 			y: ground.y - 30
 		}, (h - (bird.y + 200)) / 1.5, createjs.Ease.linear); //drop to the bedrock
 	}
-
-
 	stage.update(event);
 }

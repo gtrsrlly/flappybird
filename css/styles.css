@@ -13,6 +13,7 @@ body, html {
 	padding: 0px;
 	text-align: center;
 	height: 100%;
+	background:#000;
 }
 canvas {
 	max-height: 100%;
