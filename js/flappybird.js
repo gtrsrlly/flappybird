@@ -111,10 +111,10 @@ function init(){
 	stage = new createjs.Stage("testCanvas");
 	console.log('Touch enabled!');
 	createjs.Touch.enable(stage);
-	if(SAVEMODE == 'local'){
-		stage.canvas.width = document.body.clientWidth;
-		stage.canvas.height = document.body.clientHeight;
-	}
+	//if(SAVEMODE == 'local'){
+	//	stage.canvas.width = document.body.clientWidth;
+	//	stage.canvas.height = document.body.clientHeight;
+	//}
 
 	w = stage.canvas.width;
 	h = stage.canvas.height;
