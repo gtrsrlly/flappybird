@@ -64,7 +64,7 @@ if(supports_html5_storage){
 }
 
 var $_GET = getUrlVars();
-if($_GET['api_url'] == 'http://api.vk.com/api.php'){
+if($_GET['api_url'] !== undefined){
 	window.SAVEMODE = 'vk';
 	console.info('SaveMode switched to VK');
 }
@@ -111,8 +111,10 @@ function init(){
 	stage = new createjs.Stage("testCanvas");
 	console.log('Touch enabled!');
 	createjs.Touch.enable(stage);
-	stage.canvas.width = document.body.clientWidth;
-	stage.canvas.height = document.body.clientHeight;
+	if(SAVEMODE == 'local'){
+		stage.canvas.width = document.body.clientWidth;
+		stage.canvas.height = document.body.clientHeight;
+	}
 
 	w = stage.canvas.width;
 	h = stage.canvas.height;
