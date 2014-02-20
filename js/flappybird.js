@@ -63,8 +63,8 @@ if(supports_html5_storage){
 	console.info('SaveMode switched to Local');
 }
 
-var $_GET = getUrlVars();
-if($_GET['api_url'] !== undefined){
+var URLGETS = getUrlVars();
+if(URLGETS['api_url'] !== undefined){
 	window.SAVEMODE = 'vk';
 	console.info('SaveMode switched to VK');
 }
