@@ -17,6 +17,7 @@ function getUrlVars() {
     vars.push(hash[0]);
     vars[hash[0]] = hash[1];
   }
+	console.log('Extracted variables from $_GET: '+vars);
   return vars;
 }
 
