@@ -121,10 +121,39 @@ function init(){
 	stage = new createjs.Stage("testCanvas");
 	console.log('Touch enabled!');
 	createjs.Touch.enable(stage);
-	if(SAVEMODE == 'local'){
+		console.info('Updated canvas Width:'+document.body.clientWidth+'px, Height:'+document.body.clientHeight+'px');
 		stage.canvas.width = document.body.clientWidth;
 		stage.canvas.height = document.body.clientHeight;
-	}
+		if(document.body.clientHeight < 800){
+			console.log('New canvas Width:'+document.body.clientWidth*1.5+'px, Height:'+document.body.clientHeight*1.5+'px (X1.5)');
+			stage.canvas.width = document.body.clientWidth*(1.5);
+			stage.canvas.height = document.body.clientHeight*1.5;
+		}
+		if(document.body.clientHeight < 700){
+			console.log('New canvas Width:'+document.body.clientWidth*2+'px, Height:'+document.body.clientHeight*2+'px (X2)');
+			stage.canvas.width = document.body.clientWidth*2;
+			stage.canvas.height = document.body.clientHeight*2;
+		}
+		if(document.body.clientHeight < 500){
+			console.log('New canvas Width:'+document.body.clientWidth*2.5+'px, Height:'+document.body.clientHeight*2.5+'px (X2.5)');
+			stage.canvas.width = document.body.clientWidth*2.5;
+			stage.canvas.height = document.body.clientHeight*2.5;
+		}
+		if(document.body.clientHeight < 400){
+			console.log('New canvas Width:'+document.body.clientWidth*3+'px, Height:'+document.body.clientHeight*3+'px (X3)');
+			stage.canvas.width = document.body.clientWidth*3;
+			stage.canvas.height = document.body.clientHeight*3;
+		}
+		if(document.body.clientHeight < 300){
+			console.log('New canvas Width:'+document.body.clientWidth*4.8+'px, Height:'+document.body.clientHeight*4.8+'px (X4.8)');
+			stage.canvas.width = document.body.clientWidth*4.8;
+			stage.canvas.height = document.body.clientHeight*4.8;
+		}
+		if(document.body.clientHeight < 200){
+			console.log('New canvas Width:'+document.body.clientWidth*8+'px, Height:'+document.body.clientHeight*8+'px (X8)');
+			stage.canvas.width = document.body.clientWidth*8;
+			stage.canvas.height = document.body.clientHeight*8;
+		}
 
 	w = stage.canvas.width;
 	h = stage.canvas.height;
@@ -135,6 +164,9 @@ function init(){
 		id: "bird"
 	}, {
 		src: "img/background2.png",
+		id: "background2"
+	}, {
+		src: "img/background.png",
 		id: "background"
 	}, {
 		src: "img/runscreen.png",
@@ -168,28 +200,35 @@ function init(){
 }
 
 function handleComplete() {
-
-	console.log('Let\'s put some background...');
-	
-	var backgroundImg = loader.getResult("background");
-	background = new createjs.Shape();
-	background.graphics.beginBitmapFill(backgroundImg).drawRect(0, 0, w + backgroundImg.width, backgroundImg.height);
-	background.tileW = backgroundImg.width;
-	background.y = 0;
-
 	var runscreenImg = loader.getResult("runscreen");
+	var groundImg = loader.getResult("ground");
+	var stageBackgroundImg = loader.getResult("background");
+	var backgroundImg = loader.getResult("background2");
+	
+		
 	runscreen = new createjs.Shape();
 	runscreen.graphics.beginBitmapFill(runscreenImg).drawRect(0, 0, runscreenImg.width, runscreenImg.height);
 	runscreen.tileW = 100;
-	runscreen.y = 300;
+	runscreen.y = h / 2 - 150;
 	runscreen.x = w / 2 - 50;
 
 	console.log('...put some grass...');
-	var groundImg = loader.getResult("ground");
 	ground = new createjs.Shape();
-	ground.graphics.beginBitmapFill(groundImg).drawRect(0, 0, w + groundImg.width, groundImg.height);
+	ground.graphics.beginBitmapFill(groundImg).drawRect(0, 0, w + groundImg.width, groundImg.height + 5);
 	ground.tileW = groundImg.width;
-	ground.y = h - groundImg.height;
+	ground.y = h - groundImg.height - 5;
+	
+	console.log('Let\'s put some stage background...');
+	stageBackground = new createjs.Shape();
+	stageBackground.graphics.beginBitmapFill(stageBackgroundImg).drawRect(0, 0, w + stageBackgroundImg.width, h - groundImg.height - backgroundImg.height - 5);
+	stageBackground.tileW = stageBackgroundImg.width;
+	stageBackground.y = 0;
+	
+	console.log('Let\'s put some background...');
+	background = new createjs.Shape();
+	background.graphics.beginBitmapFill(backgroundImg).drawRect(0, 0, w + backgroundImg.width, backgroundImg.height);
+	background.tileW = backgroundImg.width;
+	background.y = h - groundImg.height - backgroundImg.height - 5;
 
 	console.log('...defining animations...');
 	var data = new createjs.SpriteSheet({
@@ -228,6 +267,7 @@ function handleComplete() {
 
 	obstacles = new createjs.Container();
 	stage.addChild(background)
+	stage.addChild(stageBackground)
 	stage.addChild(runscreen)
 	stage.addChild(obstacles)
 
@@ -242,9 +282,9 @@ function handleComplete() {
 	centerTextOutline.textAlign = 'center'
 	centerText.textAlign = 'center'
 	centerTextOutline.x = w / 2
-	centerTextOutline.y = 150
+	centerTextOutline.y = h / 2 - 330;
 	centerText.x = w / 2
-	centerText.y = 150
+	centerText.y = h / 2 - 330;
 	centerText.alpha = 1
 	centerTextOutline.alpha = 1
 	stage.addChild(centerText, centerTextOutline);
