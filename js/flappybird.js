@@ -55,11 +55,10 @@ var stage, w, h, loader, obstacle1height, obstacle2height, obstacle3height, star
 var background, runscreen, bird, ground, obstacle, bottomObstacle, obstacles, rotationDelta, counter, counterOutline;
 var started = false;
 var startJump = false;
-var jumpAmount = 120;
-var jumpTime = 266;
+var JumpSpeed = 120;
+var JumpTime = 266;
 var dead = false;
-var KEYCODE_SPACE = 32;
-var gap = 250;
+var gap = 265;
 var masterObstacleDelay = 78;
 var obstacleDelay = masterObstacleDelay;
 var GODMODE = 'OFF';
@@ -177,10 +176,13 @@ function init(){
 		src: "img/obstacle.png",
 		id: "obstacle"
 	}, {
-		src: "img/restart.png",
+		src: "img/scoreboard.png",
+		id: "scoreboard"
+	}, {
+		src: "img/play_button.png",
 		id: "start"
 	}, {
-		src: "img/share.png",
+		src: "img/twitter_button.png",
 		id: "share"
 	}, {
 		src: "fonts/FB.eot"
@@ -215,11 +217,11 @@ function handleComplete() {
 	ground = new createjs.Shape();
 	ground.graphics.beginBitmapFill(groundImg).drawRect(0, 0, w + groundImg.width, groundImg.height + 5);
 	ground.tileW = groundImg.width;
-	ground.y = h - groundImg.height - 5;
+	ground.y = h - groundImg.height;
 	
 	console.log('Let\'s put some stage background...');
 	stageBackground = new createjs.Shape();
-	stageBackground.graphics.beginBitmapFill(stageBackgroundImg).drawRect(0, 0, w + stageBackgroundImg.width, h - groundImg.height - backgroundImg.height - 5);
+	stageBackground.graphics.beginBitmapFill(stageBackgroundImg).drawRect(0, 0, w + stageBackgroundImg.width, h - groundImg.height - backgroundImg.height);
 	stageBackground.tileW = stageBackgroundImg.width;
 	stageBackground.y = 0;
 	
@@ -227,7 +229,7 @@ function handleComplete() {
 	background = new createjs.Shape();
 	background.graphics.beginBitmapFill(backgroundImg).drawRect(0, 0, w + backgroundImg.width, backgroundImg.height);
 	background.tileW = backgroundImg.width;
-	background.y = h - groundImg.height - backgroundImg.height - 5;
+	background.y = h - groundImg.height - backgroundImg.height;
 
 	console.log('...defining animations...');
 	var data = new createjs.SpriteSheet({
@@ -409,7 +411,6 @@ function restart() {
 			alpha: 1
 		}, 100)
 	console.log('Alright, restart the game!');
-	//hide anything on stage and show the score
 	obstacles.removeAllChildren();
 	createjs.Tween.get(start).to({
 		y: start.y + 10
@@ -477,16 +478,53 @@ function die() {
 			y: ground.y - 30
 		}, (h - (bird.y + 200)) / 1.5, createjs.Ease.linear);
 		console.log('Bird dropped to the floor');
+		scoreBoard = new createjs.Bitmap(loader.getResult("scoreboard"));
+		scoreBoard.alpha = 0
+		scoreBoard.x = w / 2 - scoreBoard.image.width / 2
+		scoreBoard.y = h / 2 - scoreBoard.image.height / 2 - 50
 		start = new createjs.Bitmap(loader.getResult("start"));
 		start.alpha = 0
 		start.x = w / 2 - start.image.width / 2
-		start.y = h / 2 - start.image.height / 2 - 50
+		start.y = h / 2 - start.image.height / 2 + 180
 		share = new createjs.Bitmap(loader.getResult("share"));
 		share.alpha = 0
 		share.x = w / 2 - share.image.width / 2
-		share.y = h / 2 - share.image.height / 2 + 50
+		share.y = h / 2 - share.image.height / 2 + 300
+		stage.addChild(scoreBoard)
 		stage.addChild(start)
 		stage.addChild(share)
+		
+		
+	boardScore = new createjs.Text(0, "50px 'Flappy Bird'", "#ffffff");
+	boardScoreOutline = new createjs.Text(0, "50px 'Flappy Bird'", "#000000");
+	boardScoreOutline.outline = 2
+	boardScoreOutline.textAlign = 'right'
+	boardScore.textAlign = 'right'
+	boardScoreOutline.x = w / 2 + 205
+	boardScoreOutline.y = h / 2 - 105
+	boardScore.x = w / 2 + 205
+	boardScore.y = h / 2 - 105
+	boardScore.alpha = 0
+	boardScoreOutline.alpha = 0
+	stage.addChild(boardScore, boardScoreOutline);
+	boardScore.text = counter.text
+	boardScoreOutline.text = counter.text	
+	
+	boardBestScore = new createjs.Text(0, "50px 'Flappy Bird'", "#ffffff");
+	boardBestScoreOutline = new createjs.Text(0, "50px 'Flappy Bird'", "#000000");
+	boardBestScoreOutline.outline = 2
+	boardBestScoreOutline.textAlign = 'right'
+	boardBestScore.textAlign = 'right'
+	boardBestScoreOutline.x = w / 2 + 205
+	boardBestScoreOutline.y = h / 2 - 10
+	boardBestScore.x = w / 2 + 205
+	boardBestScore.y = h / 2 - 10
+	boardBestScore.alpha = 0
+	boardBestScoreOutline.alpha = 0
+	stage.addChild(boardBestScore, boardBestScoreOutline);
+	boardBestScore.text = window.USERLEVEL
+	boardBestScoreOutline.text = window.USERLEVEL
+		
 		console.log('Created new buttons');
 
 		centerText.text = 'The End!';
@@ -522,6 +560,21 @@ function die() {
 		createjs.Tween.get(counterTextOutline).to({
 			alpha: 0
 		}, 70)
+		createjs.Tween.get(scoreBoard).to({
+			alpha: 1
+		}, 170)
+		createjs.Tween.get(boardScore).to({
+			alpha: 1
+		}, 170)
+		createjs.Tween.get(boardScoreOutline).to({
+			alpha: 1
+		}, 170)
+		createjs.Tween.get(boardBestScore).to({
+			alpha: 1
+		}, 170)
+		createjs.Tween.get(boardBestScoreOutline).to({
+			alpha: 1
+		}, 170)
 		createjs.Tween.get(start).to({
 			alpha: 1
 		}, 200).call(addClickToStart)
@@ -533,8 +586,13 @@ function die() {
 }
 
 function removeStart() {
+	stage.removeChild(scoreBoard);
 	stage.removeChild(start);
 	stage.removeChild(share);
+	stage.removeChild(boardScore);
+	stage.removeChild(boardScoreOutline);
+	stage.removeChild(boardBestScore);
+	stage.removeChild(boardBestScoreOutline);
 	console.log('All control buttons removed!');
 }
 
@@ -558,7 +616,7 @@ function goShare() {
 	} else {
 		countText = counter.text + " points"
 	}
-	window.open("https://twitter.com/share?url=http%3A%2F%2Fb1rd.tk&text=I scored " + countText + " on Flappy Bird at ");
+	window.open('https://twitter.com/share?url=http%3A%2F%2Fb1rd.tk&text=I scored '+countText+' on Flappy Bird!','_blank');
 	console.log('Result shared!');
 }
 
@@ -591,6 +649,7 @@ function tick(event) {
 	if (!dead) {
 		ground.x = (ground.x - deltaS * 300) % ground.tileW;
 		background.x = (background.x - deltaS * 100) % background.tileW;
+		stageBackground.x = (stageBackground.x - deltaS * 60) % stageBackground.tileW;
 	} else {
 	}
 	
@@ -670,12 +729,12 @@ function tick(event) {
 				rotation: -20
 			}, rotationDelta, createjs.Ease.linear) //rotate to jump position and jump bird
 		.to({
-			y: bird.y - jumpAmount,
+			y: bird.y - JumpSpeed,
 			rotation: -20
-		}, jumpTime - rotationDelta, createjs.Ease.quadOut) //rotate to jump position and jump bird
+		}, JumpTime - rotationDelta, createjs.Ease.quadOut) //rotate to jump position and jump bird
 		.to({
 			y: bird.y
-		}, jumpTime, createjs.Ease.quadIn) //reverse jump for smooth arch
+		}, JumpTime, createjs.Ease.quadIn) //reverse jump for smooth arch
 		.to({
 			y: bird.y + 200,
 			rotation: 90
