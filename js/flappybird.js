@@ -55,14 +55,13 @@ var stage, w, h, loader, obstacle1height, obstacle2height, obstacle3height, star
 var background, runscreen, bird, ground, obstacle, bottomObstacle, obstacles, rotationDelta, counter, counterOutline;
 var started = false;
 var startJump = false;
-var jumpAmount = 120;
+var jumpAmount = 20;
 var jumpTime = 266;
 var dead = false;
 var KEYCODE_SPACE = 32;
 var gap = 250;
 var masterObstacleDelay = 78;
 var obstacleDelay = masterObstacleDelay;
-var counterShow = false;
 var GODMODE = 'OFF';
 document.onkeydown = handleKeyDown;
 
@@ -375,7 +374,14 @@ function handleJumpStart() {
 		if (!started) {
 			console.info('Game started!');
 			started = true
-			counterShow = true
+			counter.alpha = 1
+			counterOutline.alpha = 1
+			counterText.alpha = 1
+			counterTextOutline.alpha = 1
+			BestScoreCounter.alpha = 1
+			BestScoreCounterOutline.alpha = 1
+			BestScoreCounterText.alpha = 1
+			BestScoreCounterTextOutline.alpha = 1
 			createjs.Tween.get(runscreen).to({
 				alpha: 0
 			}, 110)
@@ -420,7 +426,6 @@ function restart() {
 	counter.alpha = 0
 	centerText.alpha = 1;
 	centerTextOutline.alpha = 1;
-	counterShow = false
 	runscreen.alpha = 1;
 	centerText.text = 'Get Ready!';
 	centerTextOutline.text = 'Get Ready!';
@@ -640,18 +645,6 @@ function tick(event) {
 				}
 			}
 		}
-		if (counterShow) {
-			counter.alpha = 1
-			counterOutline.alpha = 1
-			counterText.alpha = 1
-			counterTextOutline.alpha = 1
-			BestScoreCounter.alpha = 1
-			BestScoreCounterOutline.alpha = 1
-			BestScoreCounterText.alpha = 1
-			BestScoreCounterTextOutline.alpha = 1
-			counterShow = false
-		}
-
 	}
 
 
