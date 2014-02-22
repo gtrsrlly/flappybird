@@ -183,7 +183,22 @@ function init(){
 		id: "start"
 	}, {
 		src: "img/twitter_button.png",
-		id: "share"
+		id: "twitter_button"
+	}, {
+		src: "img/facebook_button.png",
+		id: "facebook_button"
+	}, {
+		src: "img/medal_bronze.png",
+		id: "medal_bronze"
+	}, {
+		src: "img/medal_silver.png",
+		id: "medal_silver"
+	}, {
+		src: "img/medal_gold.png",
+		id: "medal_gold"
+	}, {
+		src: "img/medal_brilliant.png",
+		id: "medal_brilliant"
 	}, {
 		src: "fonts/FB.eot"
 	}, {
@@ -485,14 +500,64 @@ function die() {
 		start = new createjs.Bitmap(loader.getResult("start"));
 		start.alpha = 0
 		start.x = w / 2 - start.image.width / 2
-		start.y = h / 2 - start.image.height / 2 + 180
-		share = new createjs.Bitmap(loader.getResult("share"));
-		share.alpha = 0
-		share.x = w / 2 - share.image.width / 2
-		share.y = h / 2 - share.image.height / 2 + 300
+		start.y = h / 2 - start.image.height / 2 + 220
+		
+		TwitterButton = new createjs.Bitmap(loader.getResult("twitter_button"));
+		TwitterButton.alpha = 0
+		TwitterButton.x = w / 2 - TwitterButton.image.width - 20
+		TwitterButton.y = h / 2 - TwitterButton.image.height / 2 + 80
+		
+		FacebookButton = new createjs.Bitmap(loader.getResult("facebook_button"));
+		FacebookButton.alpha = 0
+		FacebookButton.x = w / 2 + 20
+		FacebookButton.y = h / 2 - FacebookButton.image.height / 2 + 80
+		
 		stage.addChild(scoreBoard)
 		stage.addChild(start)
-		stage.addChild(share)
+		stage.addChild(TwitterButton)
+		stage.addChild(FacebookButton)
+		
+		levelMedal = new createjs.Bitmap();
+		if((window.USERLEVEL > 9)&&(window.USERLEVEL < 20)){
+			levelMedal = new createjs.Bitmap(loader.getResult("medal_bronze"));
+			levelMedal.alpha = 0
+			levelMedal.x = w / 2 - levelMedal.image.width / 2 - 144
+			levelMedal.y = h / 2 - levelMedal.image.height / 2 - 38
+			stage.addChild(levelMedal)
+			createjs.Tween.get(levelMedal).to({
+				alpha: 1
+			}, 190)
+		}
+		if((window.USERLEVEL > 19)&&(window.USERLEVEL < 40)){
+			levelMedal = new createjs.Bitmap(loader.getResult("medal_silver"));
+			levelMedal.alpha = 0
+			levelMedal.x = w / 2 - levelMedal.image.width / 2 - 144
+			levelMedal.y = h / 2 - levelMedal.image.height / 2 - 38
+			stage.addChild(levelMedal)
+			createjs.Tween.get(levelMedal).to({
+				alpha: 1
+			}, 190)
+		}
+		if((window.USERLEVEL > 39)&&(window.USERLEVEL < 100)){
+			levelMedal = new createjs.Bitmap(loader.getResult("medal_gold"));
+			levelMedal.alpha = 0
+			levelMedal.x = w / 2 - levelMedal.image.width / 2 - 144
+			levelMedal.y = h / 2 - levelMedal.image.height / 2 - 38
+			stage.addChild(levelMedal)
+			createjs.Tween.get(levelMedal).to({
+				alpha: 1
+			}, 190)
+		}
+		if(window.USERLEVEL > 100){
+			levelMedal = new createjs.Bitmap(loader.getResult("medal_brilliant"));
+			levelMedal.alpha = 0
+			levelMedal.x = w / 2 - levelMedal.image.width / 2 - 144
+			levelMedal.y = h / 2 - levelMedal.image.height / 2 - 38
+			stage.addChild(levelMedal)
+			createjs.Tween.get(levelMedal).to({
+				alpha: 1
+			}, 190)
+		}
 		
 		
 	boardScore = new createjs.Text(0, "50px 'Flappy Bird'", "#ffffff");
@@ -530,6 +595,13 @@ function die() {
 		centerText.text = 'The End!';
 		centerTextOutline.text = 'The End!';
 		console.log('Center Text changed');
+		
+		
+		createjs.Tween.get(centerText).to({
+			alpha: 1
+		}, 100)
+		
+		
 		createjs.Tween.get(centerText).to({
 			alpha: 1
 		}, 100)
@@ -578,7 +650,10 @@ function die() {
 		createjs.Tween.get(start).to({
 			alpha: 1
 		}, 200).call(addClickToStart)
-		createjs.Tween.get(share).to({
+		createjs.Tween.get(TwitterButton).to({
+			alpha: 1
+		}, 200).call(addClickToStart)
+		createjs.Tween.get(FacebookButton).to({
 			alpha: 1
 		}, 200).call(addClickToStart)
 		console.log('Text & buttons animated');
@@ -588,11 +663,13 @@ function die() {
 function removeStart() {
 	stage.removeChild(scoreBoard);
 	stage.removeChild(start);
-	stage.removeChild(share);
+	stage.removeChild(TwitterButton);
+	stage.removeChild(FacebookButton);
 	stage.removeChild(boardScore);
 	stage.removeChild(boardScoreOutline);
 	stage.removeChild(boardBestScore);
 	stage.removeChild(boardBestScoreOutline);
+	stage.removeChild(levelMedal);
 	console.log('All control buttons removed!');
 }
 
@@ -605,11 +682,24 @@ function addClickToStart() {
 		}
 	});
 	start.addEventListener("click", restart);
-	share.addEventListener("click", goShare);
+	TwitterButton.addEventListener("click", TweetResult);
+	FacebookButton.addEventListener("click", ShareResult);
 }
 
-function goShare() {
+function TweetResult() {
 	console.log('User wants to share his result via Twitter');
+	var countText
+	if (counter.text == 1) {
+		countText = "1 point"
+	} else {
+		countText = counter.text + " points"
+	}
+	window.open('https://twitter.com/share?url=http%3A%2F%2Fb1rd.tk&text=I scored '+countText+' on Flappy Bird!','_blank');
+	console.log('Result shared!');
+}
+
+function ShareResult() {
+	console.log('User wants to share his result via Facebook');
 	var countText
 	if (counter.text == 1) {
 		countText = "1 point"
