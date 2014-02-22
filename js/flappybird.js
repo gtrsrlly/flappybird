@@ -55,7 +55,7 @@ var stage, w, h, loader, obstacle1height, obstacle2height, obstacle3height, star
 var background, runscreen, bird, ground, obstacle, bottomObstacle, obstacles, rotationDelta, counter, counterOutline;
 var started = false;
 var startJump = false;
-var jumpAmount = 20;
+var jumpAmount = 120;
 var jumpTime = 266;
 var dead = false;
 var KEYCODE_SPACE = 32;
